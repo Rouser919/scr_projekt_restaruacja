@@ -8,8 +8,11 @@ class Person:
         self.order = []
         self.arrive_time_on_queue = datetime.now()
 
-    def get_time_spent_in_queue(self):
-        return datetime.now() - self.arrive_time_on_queue
+    def get_time_spent_in_queue(self) -> str:
+        wait_timestamp = (
+            datetime.now().timestamp() - self.arrive_time_on_queue.timestamp()
+        )
+        return datetime.utcfromtimestamp(wait_timestamp).strftime("%Hh:%Mmin:%Ss")
 
     def set_table_numer(self, table_number: int):
         self.table_number = table_number
