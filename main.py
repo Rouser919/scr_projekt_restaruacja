@@ -73,7 +73,7 @@ async def serve_persons(queue: Queue):
     people_orders = Queue(maxsize=MAX_COUNT_OF_PEOPLE_IN_QUEUE)
     while True:
         if not queue.empty():
-            print(f"Now in queue {queue._qsize()} persons are waiting to make a order")
+            print(f"Now in queue {queue.qsize()} persons are waiting to make a order")
             print("---------------------------------------------------------------------")
             person = await serve_person(queue.get())
             people_orders.put(person)
