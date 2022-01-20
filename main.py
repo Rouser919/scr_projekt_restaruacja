@@ -13,7 +13,7 @@ from restaruant_menu import *
 MAX_COUNT_OF_PEOPLE_IN_QUEUE = 20
 MAX_COUNT_OF_ORDERS_IN_RESTARUANT = 50
 SECONDS_IN_MINUTE = 3
-REFRESH_TIME = 10
+REFRESH_TIME = 1
 
 
 def parse_args():
@@ -34,19 +34,38 @@ async def generate_load(queue: Queue, load_count_per_min: int):
             queue.put(Person())
             count_of_people_join_the_queue -= 1
         await asyncio.sleep(SECONDS_IN_MINUTE)
+        
+async def print_menu():
+    print("Product list")
+    print("_____________________________")
+    for product,price in RESTAURANT_MENU.items():
+        print(f"Product name: {product}, price: {price}")
 
 
 async def serve_person(person: Person) -> Person:
+    print("Hello, what do you want to order?")
     while True:
-        # Dodac funkcje wypisujaca menu wraz z cena
-        # Dodać dodawanie potraw wybranych przez uzytkownika do listy productow
-        # dodac wybieranie numeru stolika (Zawsze) Nie interesuje nas czy stolik jest zajety przez kogos innego ale mozna to rozwazyc
-        # Po wyjsciu  print z petli suma ( cena do zaplaty za wszystkie produkty, juz taka fukcja jest w klasie)
-        # Wyprintowac laczny czas oczekiwania
-        print("Press X to end order")
+        print("Enter Exit to end order, Menu for show the menu, Set Number to set table number or enter full name of product for add product to order")
         selection = await aioconsole.ainput("Enter a choice:")
-        if selection == "X":
+        if selection == "Exit":
+            print("Exiting an order....")
             break
+        if selection == "Menu":
+            print_menu()
+            continue
+        if selection == "Set Number":
+            selection = await aioconsole.ainput("Enter a table number:")
+            person.set_table_numer(int(selection))
+            print("Successfully sets table number!")
+            continue
+        if selection in RESTAURANT_MENU.keys():
+            person.append_product(product=selection,price=RESTAURANT_MENU[selection])
+            print(f"Successfully add {selection} to order!")
+            continue
+    print(f"Time spent on queue: {person.get_time_spent_in_queue()}")
+    print(f"Price of order: {person.calculate_order_value()} ")
+    print("Thanks for order! Your order will be delievired soon to your table!")
+    print("---------------------------------------------------------------------")
     return person
 
 
@@ -54,6 +73,8 @@ async def serve_persons(queue: Queue):
     people_orders = Queue(maxsize=MAX_COUNT_OF_PEOPLE_IN_QUEUE)
     while True:
         if not queue.empty():
+            print(f"Now in queue {queue._qsize()} persons are waiting to make a order")
+            print("---------------------------------------------------------------------")
             person = await serve_person(queue.get())
             people_orders.put(person)
         else:

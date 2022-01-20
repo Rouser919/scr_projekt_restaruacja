@@ -17,11 +17,12 @@ class Person:
     def set_table_numer(self, table_number: int):
         self.table_number = table_number
 
-    def append_product(self, product: Dict[str, int]):
-        self.order.append(product)
+    def append_product(self,product,price):
+        self.order.append({product:price})
 
     def calculate_order_value(self) -> int:
         order_value = 0
-        for product_price in self.order.values():
-            order_value += product_price
+        for product_with_price in self.order:
+            for price in product_with_price.values():
+                order_value += price
         return order_value
